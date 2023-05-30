@@ -20,7 +20,7 @@ public class FPSCamerController : MonoBehaviour
 
     private void OnDisable()
     {
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     private void LateUpdate()
