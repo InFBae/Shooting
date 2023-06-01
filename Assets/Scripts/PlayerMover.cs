@@ -48,7 +48,6 @@ public class PlayerMover : MonoBehaviour
         else
         {
             moveSpeed = Mathf.Lerp(moveSpeed, runSpeed, 0.5f);
-
         }
 
 

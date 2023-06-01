@@ -10,7 +10,7 @@ public class TPSCameraController : MonoBehaviour
     [SerializeField] float lookDistance;
     [SerializeField] Transform aimTarget;
 
-    private Vector2 lookDelta;
+    private Vector2 lookDelta;    
     private float xRotation;
     private float yRotation;
 
