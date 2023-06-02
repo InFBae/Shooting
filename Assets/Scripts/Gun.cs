@@ -1,51 +1,58 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build.Content;
 using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
-    [SerializeField] float maxDistance;
-    [SerializeField] int damage;
-    [SerializeField] float bulletSpeed;
-    [SerializeField] ParticleSystem hitEffect;
-    [SerializeField] ParticleSystem muzzleFlash;
-    [SerializeField] TrailRenderer bulletTrail;
+    [SerializeField] private float maxDistance;
+    [SerializeField] private int damage;
+    [SerializeField] private ParticleSystem muzzleEffect;
+    
+    private ParticleSystem bulletEffect;
+
+    public void Awake()
+    {
+        bulletEffect = GameManager.Resource.Load<ParticleSystem>("Prefabs/BulletHitEffect");   
+    }
 
     public void Fire()
     {
-        muzzleFlash.Play();
+        muzzleEffect.Play();
 
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, maxDistance))
         {
-            IHittable hittable = hit.transform.GetComponent<IHittable>();
-            ParticleSystem effect = Instantiate(hitEffect, hit.point, Quaternion.LookRotation(hit.normal));
-            effect.transform.SetParent(hit.transform);
-            Destroy(effect.gameObject, 3f);
+            IHittable target = hit.transform.GetComponent<IHittable>();
+            target?.Hit(hit, damage);
 
-            StartCoroutine(TrailRoutine(muzzleFlash.transform.position, hit.point));
+            ParticleSystem effect = GameManager.Resource.Instantiate(bulletEffect, hit.point, Quaternion.LookRotation(hit.normal), true);
+            effect.transform.parent = hit.transform.transform;
+            GameManager.Resource.Destroy(effect.gameObject, 3f);
 
-            hittable?.Hit(hit, damage);            
+            TrailRenderer trail = GameManager.Resource.Instantiate<TrailRenderer>("Prefabs/BulletTrail", muzzleEffect.transform.position, Quaternion.identity, true);
+            StartCoroutine(TrailRoutine(trail, trail.transform.position, hit.point));
+            GameManager.Resource.Destroy(trail.gameObject, 3f);
         }
         else
         {
-            StartCoroutine(TrailRoutine(muzzleFlash.transform.position, Camera.main.transform.forward * maxDistance));            
+            TrailRenderer trail = GameManager.Resource.Instantiate<TrailRenderer>("Prefabs/BulletTrail", muzzleEffect.transform.position, Quaternion.identity, true);
+            StartCoroutine(TrailRoutine(trail, trail.transform.position, Camera.main.transform.forward * maxDistance));
+            GameManager.Resource.Destroy(trail.gameObject, 3f);
         }
     }
 
-    IEnumerator TrailRoutine(Vector3 startPoint, Vector3 endPoint)
+    IEnumerator TrailRoutine(TrailRenderer trail, Vector3 startPoint, Vector3 endPoint)
     {
-        TrailRenderer trail = Instantiate(bulletTrail, muzzleFlash.transform.position, Quaternion.identity);
-        float totalTime = Vector2.Distance(startPoint, endPoint) / bulletSpeed;
+        float totalTime = Vector2.Distance(startPoint, endPoint) / maxDistance;
 
-        float rate = 0;
-        while (rate < 1)
+        float time = 0;
+        while (time < 1)
         {
-            trail.transform.position = Vector3.Lerp(startPoint, endPoint, rate);
-            rate += Time.deltaTime/ totalTime;
+            trail.transform.position = Vector3.Lerp(startPoint, endPoint, time);
+            time += Time.deltaTime / totalTime;
 
             yield return null;
         }
-        Destroy(trail.gameObject);
     }
 }

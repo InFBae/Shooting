@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerShooter : MonoBehaviour
 {
+    public TrailRenderer bulletTrail;
+
     [SerializeField] float reloadTime;
     [SerializeField] Rig aimRig;
     [SerializeField] WeaponHolder weaponHolder;
@@ -17,6 +19,7 @@ public class PlayerShooter : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         weaponHolder = GetComponentInChildren<WeaponHolder>();
+        Resources.Load<TrailRenderer>("Prefabs/BulletTrail");
     }
     private void OnReload(InputValue inputValue)
     {

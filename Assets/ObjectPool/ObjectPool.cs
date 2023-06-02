@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace ObjectPool
+{
+
+
 public class ObjectPool : MonoBehaviour
 {
     [SerializeField] Poolable poolablePrefab;
@@ -61,4 +65,5 @@ public class ObjectPool : MonoBehaviour
         }
         
     }
+}
 }
